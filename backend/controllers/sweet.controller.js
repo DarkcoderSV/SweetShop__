@@ -29,7 +29,11 @@ export const listSweets = async (req, res) => {
     const sweets = await Sweet.find({}).sort({ createdAt: -1 });
     res.json(sweets);
   } catch (error) {
-    console.error("Error listing sweets:", error);
+    console.error("Error listing sweets:", error.message);
+    // If DB is not connected, respond with empty list so UI can still render
+    if (String(error.message || '').match(/Client must be connected|MongooseError|ECONNREFUSED|connect/)) {
+      return res.json([]);
+    }
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
